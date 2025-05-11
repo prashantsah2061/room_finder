@@ -1,0 +1,256 @@
+<%- contentFor('content') %>
+
+<div class="admin-dashboard">
+    <h1>Admin Dashboard</h1>
+    
+    <div class="dashboard-actions">
+        <button class="add-apartment-btn" onclick="showAddApartmentModal()">Add New Apartment</button>
+    </div>
+
+    <div class="apartments-list">
+        <h2>Manage Apartments</h2>
+        <div id="apartmentsList">
+            <!-- Apartments will be loaded here dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Apartment Modal -->
+<div id="apartmentModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modalTitle">Add New Apartment</h2>
+        <form id="apartmentForm">
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="price">Price (per month):</label>
+                <input type="number" id="price" name="price" required>
+            </div>
+            <div class="form-group">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="bedrooms">Bedrooms:</label>
+                    <input type="number" id="bedrooms" name="bedrooms" required>
+                </div>
+                <div class="form-group">
+                    <label for="bathrooms">Bathrooms:</label>
+                    <input type="number" id="bathrooms" name="bathrooms" required>
+                </div>
+                <div class="form-group">
+                    <label for="area">Area (sq ft):</label>
+                    <input type="number" id="area" name="area" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="type">Type:</label>
+                <select id="type" name="type" required>
+                    <option value="apartment">Apartment</option>
+                    <option value="room">Room</option>
+                    <option value="studio">Studio</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="images">Images (URLs, one per line):</label>
+                <textarea id="images" name="images" required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Save Apartment</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Check if user is admin
+document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('token');
+    
+    // Administrator check is now handled by the server
+    // Just load apartments if we have a token for API calls
+    if (token) {
+        loadApartments();
+    }
+});
+
+// Load apartments
+async function loadApartments() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/apartments');
+        const apartments = await response.json();
+        
+        const apartmentsList = document.getElementById('apartmentsList');
+        apartmentsList.innerHTML = apartments.map(apt => `
+            <div class="apartment-item">
+                <img src="${apt.images[0]}" alt="${apt.title}">
+                <div class="apartment-info">
+                    <h3>${apt.title}</h3>
+                    <p>${apt.location} - $${apt.price}/mo</p>
+                </div>
+                <div class="apartment-actions">
+                    <button onclick="editApartment('${apt._id}')">Edit</button>
+                    <button onclick="deleteApartment('${apt._id}')" class="delete-btn">Delete</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading apartments:', error);
+    }
+}
+
+// Modal handling
+const modal = document.getElementById('apartmentModal');
+const closeBtn = document.getElementsByClassName('close')[0];
+
+function showAddApartmentModal() {
+    document.getElementById('modalTitle').textContent = 'Add New Apartment';
+    document.getElementById('apartmentForm').reset();
+    modal.style.display = 'block';
+}
+
+function showEditApartmentModal(apartment) {
+    document.getElementById('modalTitle').textContent = 'Edit Apartment';
+    document.getElementById('title').value = apartment.title;
+    document.getElementById('description').value = apartment.description;
+    document.getElementById('price').value = apartment.price;
+    document.getElementById('location').value = apartment.location;
+    document.getElementById('bedrooms').value = apartment.bedrooms;
+    document.getElementById('bathrooms').value = apartment.bathrooms;
+    document.getElementById('area').value = apartment.area;
+    document.getElementById('type').value = apartment.type;
+    document.getElementById('images').value = apartment.images.join('\n');
+    modal.style.display = 'block';
+}
+
+closeBtn.onclick = function() {
+    modal.style.display = 'none';
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Form submission
+document.getElementById('apartmentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = {
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        price: parseFloat(document.getElementById('price').value),
+        location: document.getElementById('location').value,
+        bedrooms: parseInt(document.getElementById('bedrooms').value),
+        bathrooms: parseInt(document.getElementById('bathrooms').value),
+        area: parseFloat(document.getElementById('area').value),
+        type: document.getElementById('type').value,
+        images: document.getElementById('images').value.split('\n').filter(url => url.trim())
+    };
+
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('You must be logged in to perform this action');
+            window.location.href = '/login';
+            return;
+        }
+
+        const currentApartmentId = document.getElementById('apartmentForm').dataset.apartmentId;
+        
+        let url = '/api/apartments';
+        let method = 'POST';
+        
+        // If we have an apartment ID, we're editing an existing apartment
+        if (currentApartmentId) {
+            url = `/api/apartments/${currentApartmentId}`;
+            method = 'PUT';
+        }
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            modal.style.display = 'none';
+            document.getElementById('apartmentForm').removeAttribute('data-apartment-id');
+            loadApartments();
+            alert(method === 'POST' ? 'Apartment added successfully!' : 'Apartment updated successfully!');
+        } else {
+            if (data.errors) {
+                // Handle validation errors
+                const errorMessages = data.errors.map(err => `${err.param}: ${err.msg}`).join('\n');
+                alert('Validation errors:\n' + errorMessages);
+            } else {
+                alert(data.message || 'Error saving apartment');
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error saving apartment. Please try again.');
+    }
+});
+
+// Add the missing editApartment function
+async function editApartment(id) {
+    try {
+        const response = await fetch(`/api/apartments/${id}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch apartment details');
+        }
+        
+        const apartment = await response.json();
+        
+        // Set the apartment ID in the form for later use
+        document.getElementById('apartmentForm').dataset.apartmentId = id;
+        
+        // Show the edit modal with apartment data
+        showEditApartmentModal(apartment);
+    } catch (error) {
+        console.error('Error fetching apartment details:', error);
+        alert('Error loading apartment details');
+    }
+}
+
+// Delete apartment
+async function deleteApartment(id) {
+    if (!confirm('Are you sure you want to delete this apartment?')) {
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/apartments/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            loadApartments();
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Error deleting apartment');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error deleting apartment');
+    }
+}
+</script> 

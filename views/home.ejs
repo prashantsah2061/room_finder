@@ -1,0 +1,376 @@
+<%- contentFor('content') %>
+
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Find your next perfect place to stay</h1>
+        
+        <div class="search-box">
+            <div class="search-container">
+                <div class="search-input-group">
+                    <label>Where</label>
+                    <input type="text" placeholder="Search destinations" class="search-input" id="searchLocation">
+                </div>
+                <div class="search-divider"></div>
+                <div class="search-input-group">
+                    <label>Check in</label>
+                    <input type="text" placeholder="Add dates" class="search-input" id="checkIn">
+                </div>
+                <div class="search-divider"></div>
+                <div class="search-input-group">
+                    <label>Check out</label>
+                    <input type="text" placeholder="Add dates" class="search-input" id="checkOut">
+                </div>
+                <div class="search-divider"></div>
+                <div class="search-input-group">
+                    <label>Who</label>
+                    <input type="text" placeholder="Add guests" class="search-input" id="guestCount">
+                </div>
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="categories-section">
+    <div class="categories-wrapper">
+        <div class="category-item active">
+            <div class="category-icon"><i class="fas fa-home"></i></div>
+            <span>All homes</span>
+        </div>
+        <div class="category-item">
+            <div class="category-icon"><i class="fas fa-building"></i></div>
+            <span>Apartments</span>
+        </div>
+        <div class="category-item">
+            <div class="category-icon"><i class="fas fa-door-open"></i></div>
+            <span>Rooms</span>
+        </div>
+        <div class="category-item">
+            <div class="category-icon"><i class="fas fa-laptop-house"></i></div>
+            <span>Studios</span>
+        </div>
+        <div class="category-item">
+            <div class="category-icon"><i class="fas fa-dollar-sign"></i></div>
+            <span>Budget</span>
+        </div>
+        <div class="category-item">
+            <div class="category-icon"><i class="fas fa-crown"></i></div>
+            <span>Luxury</span>
+        </div>
+    </div>
+</div>
+
+<div class="filters-bar">
+    <div class="price-filter">
+        <select class="filter-select" id="sortFilter">
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="newest">Newest first</option>
+        </select>
+    </div>
+    <div class="price-range-filter">
+        <select class="filter-select" id="priceRangeFilter">
+            <option value="all">All Prices</option>
+            <option value="0-50">Under $50</option>
+            <option value="50-100">$50 - $100</option>
+            <option value="100-200">$100 - $200</option>
+            <option value="200+">$200+</option>
+        </select>
+    </div>
+    <input type="hidden" id="typeFilter" value="all">
+    <div class="view-options">
+        <button class="view-option active"><i class="fas fa-th"></i></button>
+        <button class="view-option"><i class="fas fa-map-marked-alt"></i></button>
+    </div>
+</div>
+
+<div class="listings-section">
+    <h2>Places available <span class="listings-count" id="listingsCount"></span></h2>
+    
+    <div class="listings-grid" id="listingsGrid">
+        <!-- Apartment listings will be loaded dynamically -->
+        <div id="no-listings" style="display: none; text-align: center; width: 100%; padding: 2rem;">
+            <p>No apartments available at the moment. Check back soon!</p>
+        </div>
+    </div>
+</div>
+
+<div class="featured-locations">
+    <h2>Popular destinations</h2>
+    <div class="location-cards">
+        <div class="location-card">
+            <img src="https://images.unsplash.com/photo-1518391846015-55a9cc003b25?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="New York">
+            <div class="location-info">
+                <h3>New York</h3>
+                <p>1,204 properties</p>
+            </div>
+        </div>
+        <div class="location-card">
+            <img src="https://images.unsplash.com/photo-1501464705104-7789e0cfa3c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Los Angeles">
+            <div class="location-info">
+                <h3>Los Angeles</h3>
+                <p>834 properties</p>
+            </div>
+        </div>
+        <div class="location-card">
+            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Chicago">
+            <div class="location-info">
+                <h3>Chicago</h3>
+                <p>642 properties</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Set up category filtering
+        const categoryItems = document.querySelectorAll('.category-item');
+        categoryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                categoryItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Get category name and filter apartments
+                const categoryName = item.querySelector('span').textContent.toLowerCase();
+                let filterType = 'all';
+                
+                if (categoryName === 'apartments') filterType = 'apartment';
+                else if (categoryName === 'rooms') filterType = 'room';
+                else if (categoryName === 'studios') filterType = 'studio';
+                else if (categoryName === 'budget') filterType = 'budget';
+                else if (categoryName === 'luxury') filterType = 'luxury';
+                
+                document.getElementById('typeFilter').value = filterType;
+                filterApartments(allApartments);
+            });
+        });
+        
+        // Fetch apartments from the API
+        let allApartments = [];
+        try {
+            const response = await fetch('/api/apartments');
+            allApartments = await response.json();
+            
+            displayApartments(allApartments);
+            updateListingsCount(allApartments.length);
+            
+            // Add event listeners for filters
+            document.getElementById('sortFilter').addEventListener('change', () => filterApartments(allApartments));
+            document.getElementById('priceRangeFilter').addEventListener('change', () => filterApartments(allApartments));
+            
+            // Search functionality
+            document.getElementById('searchBtn').addEventListener('click', () => {
+                const searchLocation = document.getElementById('searchLocation').value.toLowerCase();
+                filterApartments(allApartments, searchLocation);
+                
+                // Scroll to listings section
+                document.querySelector('.listings-section').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // Allow enter key on search input
+            document.getElementById('searchLocation').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    const searchLocation = document.getElementById('searchLocation').value.toLowerCase();
+                    filterApartments(allApartments, searchLocation);
+                    
+                    // Scroll to listings section
+                    document.querySelector('.listings-section').scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+            
+            // Make the location cards clickable
+            document.querySelectorAll('.location-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const locationName = card.querySelector('h3').textContent;
+                    document.getElementById('searchLocation').value = locationName;
+                    filterApartments(allApartments, locationName.toLowerCase());
+                    
+                    // Scroll to listings section
+                    document.querySelector('.listings-section').scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+            
+            // Connect datepicker functionality (placeholder for now)
+            const dateInputs = [document.getElementById('checkIn'), document.getElementById('checkOut')];
+            dateInputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    alert('Date picker would be implemented here in a production application.');
+                });
+            });
+            
+            // Guests counter functionality (placeholder for now)
+            document.getElementById('guestCount').addEventListener('focus', () => {
+                alert('Guest selection dropdown would be implemented here in a production application.');
+            });
+            
+            // View options
+            const viewOptions = document.querySelectorAll('.view-option');
+            viewOptions.forEach((option, index) => {
+                option.addEventListener('click', () => {
+                    viewOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    
+                    // Toggle between grid and map view (just visual for now)
+                    const listingsGrid = document.getElementById('listingsGrid');
+                    if (index === 0) { // Grid view
+                        listingsGrid.style.display = 'grid';
+                    } else { // Map view (placeholder behavior)
+                        alert('Map view would be implemented here in a production application.');
+                    }
+                });
+            });
+            
+        } catch (error) {
+            console.error('Error fetching apartments:', error);
+        }
+    });
+    
+    function updateListingsCount(count) {
+        const countElement = document.getElementById('listingsCount');
+        countElement.textContent = `(${count})`;
+    }
+    
+    function displayApartments(apartments) {
+        const listingsGrid = document.getElementById('listingsGrid');
+        const noListings = document.getElementById('no-listings');
+        
+        // Clear previous listings except the no-listings div
+        const children = Array.from(listingsGrid.children);
+        children.forEach(child => {
+            if (child.id !== 'no-listings') {
+                child.remove();
+            }
+        });
+        
+        if (apartments.length === 0) {
+            noListings.style.display = 'block';
+            updateListingsCount(0);
+            return;
+        }
+        
+        noListings.style.display = 'none';
+        updateListingsCount(apartments.length);
+        
+        // Create listing cards
+        apartments.forEach(apt => {
+            const card = document.createElement('div');
+            card.className = 'listing-card';
+            card.setAttribute('data-type', apt.type);
+            card.setAttribute('data-price', apt.price);
+            card.setAttribute('data-date', new Date(apt.createdAt).getTime());
+            
+            // Use a default image if none is provided
+            const imageUrl = apt.images && apt.images.length > 0 
+                ? apt.images[0] 
+                : 'https://via.placeholder.com/300x200?text=No+Image';
+            
+            // Generate rating (for demo purposes)
+            const rating = (Math.random() * (5 - 4) + 4).toFixed(1);
+            
+            card.innerHTML = `
+                <div class="listing-image">
+                    <img src="${imageUrl}" alt="${apt.title}" onerror="this.src='https://via.placeholder.com/300x200?text=Error+Loading+Image'">
+                    <button class="favorite-btn"><i class="far fa-heart"></i></button>
+                    <div class="image-pagination">
+                        <span class="current">1</span>/${apt.images ? apt.images.length : 1}
+                    </div>
+                </div>
+                <div class="listing-details">
+                    <div class="listing-header">
+                        <h3>${apt.title}</h3>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <span>${rating}</span>
+                        </div>
+                    </div>
+                    <p class="location">${apt.location}</p>
+                    <div class="amenities">
+                        <span>${apt.bedrooms} bed${apt.bedrooms !== 1 ? 's' : ''}</span>
+                        <span class="dot">·</span>
+                        <span>${apt.bathrooms} bath${apt.bathrooms !== 1 ? 's' : ''}</span>
+                        <span class="dot">·</span>
+                        <span>${apt.area} sq ft</span>
+                    </div>
+                    <div class="price-container">
+                        <span class="price">$${apt.price}</span> night
+                    </div>
+                </div>
+            `;
+            
+            // Add click event to the entire card
+            card.addEventListener('click', () => {
+                window.location.href = `/apartment/${apt._id}`;
+            });
+            
+            // Prevent the favorite button from triggering the card click
+            const favoriteBtn = card.querySelector('.favorite-btn');
+            favoriteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                favoriteBtn.classList.toggle('active');
+                const icon = favoriteBtn.querySelector('i');
+                icon.classList.toggle('far');
+                icon.classList.toggle('fas');
+            });
+            
+            listingsGrid.appendChild(card);
+        });
+    }
+    
+    function filterApartments(apartments, searchTerm = '') {
+        const typeFilter = document.getElementById('typeFilter').value;
+        const sortFilter = document.getElementById('sortFilter').value;
+        const priceRangeFilter = document.getElementById('priceRangeFilter').value;
+        
+        // Apply all filters
+        let filtered = apartments;
+        
+        // Filter by search term (location)
+        if (searchTerm) {
+            filtered = filtered.filter(apt => 
+                apt.location.toLowerCase().includes(searchTerm) || 
+                apt.title.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        // Filter by type
+        if (typeFilter !== 'all') {
+            if (typeFilter === 'budget') {
+                filtered = filtered.filter(apt => apt.price < 100);
+            } else if (typeFilter === 'luxury') {
+                filtered = filtered.filter(apt => apt.price >= 200);
+            } else {
+                filtered = filtered.filter(apt => apt.type === typeFilter);
+            }
+        }
+        
+        // Filter by price range
+        if (priceRangeFilter !== 'all') {
+            if (priceRangeFilter === '0-50') {
+                filtered = filtered.filter(apt => apt.price <= 50);
+            } else if (priceRangeFilter === '50-100') {
+                filtered = filtered.filter(apt => apt.price > 50 && apt.price <= 100);
+            } else if (priceRangeFilter === '100-200') {
+                filtered = filtered.filter(apt => apt.price > 100 && apt.price <= 200);
+            } else if (priceRangeFilter === '200+') {
+                filtered = filtered.filter(apt => apt.price > 200);
+            }
+        }
+        
+        // Sort apartments
+        if (sortFilter === 'price-asc') {
+            filtered.sort((a, b) => a.price - b.price);
+        } else if (sortFilter === 'price-desc') {
+            filtered.sort((a, b) => b.price - a.price);
+        } else if (sortFilter === 'newest') {
+            filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+        
+        displayApartments(filtered);
+    }
+</script> 

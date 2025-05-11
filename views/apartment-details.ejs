@@ -1,0 +1,833 @@
+<%- contentFor('content') %>
+
+<div class="apartment-details-page">
+    <div class="breadcrumb">
+        <a href="/" class="back-link"><i class="fas fa-chevron-left"></i> Back to search</a>
+    </div>
+
+    <div class="apartment-header">
+        <h1><%= apartment.title %></h1>
+        <div class="apartment-subheader">
+            <div class="rating-location">
+                <span class="rating"><i class="fas fa-star"></i> 4.91</span>
+                <span class="review-count">• 128 reviews</span>
+                <span class="location-dot">•</span>
+                <span class="location"><%= apartment.location %></span>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn"><i class="fas fa-share"></i> Share</button>
+                <button class="action-btn"><i class="far fa-heart"></i> Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="apartment-gallery">
+        <% if (apartment.images && apartment.images.length > 0) { %>
+            <% if (apartment.images.length === 1) { %>
+                <div class="single-image">
+                    <img src="<%= apartment.images[0] %>" alt="<%= apartment.title %>">
+                </div>
+            <% } else { %>
+                <div class="gallery-grid">
+                    <div class="main-image">
+                        <img src="<%= apartment.images[0] %>" alt="<%= apartment.title %>">
+                    </div>
+                    <div class="gallery-small">
+                        <% for (let i = 1; i < Math.min(5, apartment.images.length); i++) { %>
+                            <div class="small-image">
+                                <img src="<%= apartment.images[i] %>" alt="<%= apartment.title %> image <%= i+1 %>">
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+                <button class="show-all-photos">Show all photos</button>
+            <% } %>
+        <% } else { %>
+            <div class="single-image">
+                <img src="https://via.placeholder.com/1200x800?text=No+Images+Available" alt="No images available">
+            </div>
+        <% } %>
+    </div>
+
+    <div class="apartment-info-container">
+        <div class="apartment-info">
+            <div class="host-section">
+                <h2>Entire <%= apartment.type %> hosted by John</h2>
+                <div class="apartment-specs">
+                    <span><%= apartment.bedrooms %> bedroom<%= apartment.bedrooms !== 1 ? 's' : '' %></span>
+                    <span>•</span>
+                    <span><%= apartment.bathrooms %> bathroom<%= apartment.bathrooms !== 1 ? 's' : '' %></span>
+                    <span>•</span>
+                    <span><%= apartment.area %> sq ft</span>
+                </div>
+                <div class="host-profile">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Host profile" class="host-image">
+                </div>
+            </div>
+
+            <div class="highlights">
+                <div class="highlight-item">
+                    <div class="highlight-icon">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <div class="highlight-content">
+                        <h3>Self check-in</h3>
+                        <p>Check yourself in with the keypad.</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="highlight-content">
+                        <h3>Great location</h3>
+                        <p>90% of recent guests gave the location a 5-star rating.</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="highlight-content">
+                        <h3>Free cancellation before check-in</h3>
+                        <p>Cancel before check-in for a full refund.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="apartment-description">
+                <h2>About this space</h2>
+                <p><%= apartment.description %></p>
+                <button class="show-more-btn">Show more <i class="fas fa-chevron-down"></i></button>
+            </div>
+
+            <div class="amenities-section">
+                <h2>What this place offers</h2>
+                <div class="amenities-grid">
+                    <div class="amenity-item">
+                        <i class="fas fa-wifi"></i>
+                        <span>Wifi</span>
+                    </div>
+                    <div class="amenity-item">
+                        <i class="fas fa-parking"></i>
+                        <span>Free parking</span>
+                    </div>
+                    <div class="amenity-item">
+                        <i class="fas fa-tv"></i>
+                        <span>TV</span>
+                    </div>
+                    <div class="amenity-item">
+                        <i class="fas fa-snowflake"></i>
+                        <span>Air conditioning</span>
+                    </div>
+                    <div class="amenity-item">
+                        <i class="fas fa-utensils"></i>
+                        <span>Kitchen</span>
+                    </div>
+                    <div class="amenity-item">
+                        <i class="fas fa-washer"></i>
+                        <span>Washer</span>
+                    </div>
+                </div>
+                <button class="show-all-amenities">Show all amenities</button>
+            </div>
+        </div>
+
+        <div class="booking-card" 
+             data-apartment-price="<%= apartment.price %>" 
+             data-apartment-title="<%= apartment.title %>">
+            <div class="booking-card-header">
+                <div class="price-info">
+                    <span class="price">$<%= apartment.price %></span> night
+                </div>
+                <div class="rating-info">
+                    <i class="fas fa-star"></i> 4.91 <span class="review-count-small">• 128 reviews</span>
+                </div>
+            </div>
+            <div class="booking-form">
+                <div class="date-picker">
+                    <div class="check-in">
+                        <label>CHECK-IN</label>
+                        <input type="text" placeholder="Add date" id="bookingCheckIn">
+                    </div>
+                    <div class="check-out">
+                        <label>CHECKOUT</label>
+                        <input type="text" placeholder="Add date" id="bookingCheckOut">
+                    </div>
+                </div>
+                <div class="guests-select">
+                    <label>GUESTS</label>
+                    <select id="guestCount">
+                        <option value="1">1 guest</option>
+                        <option value="2">2 guests</option>
+                        <option value="3">3 guests</option>
+                        <option value="4">4 guests</option>
+                        <option value="5">5 guests</option>
+                    </select>
+                </div>
+                <button class="reserve-btn" id="reserveBtn">Reserve</button>
+                <p class="no-charge-text">You won't be charged yet</p>
+                
+                <div class="price-breakdown">
+                    <div class="price-item">
+                        <span>$<%= apartment.price %> x <span id="nightCount">5</span> nights</span>
+                        <span id="totalNightPrice">$<%= apartment.price * 5 %></span>
+                    </div>
+                    <div class="price-item">
+                        <span>Cleaning fee</span>
+                        <span>$75</span>
+                    </div>
+                    <div class="price-item">
+                        <span>Service fee</span>
+                        <span id="serviceFee">$<%= Math.round(apartment.price * 5 * 0.15) %></span>
+                    </div>
+                    <div class="price-item total">
+                        <span>Total before taxes</span>
+                        <span id="totalPrice">$<%= apartment.price * 5 + 75 + Math.round(apartment.price * 5 * 0.15) %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="location-section">
+    <h2>Where you'll be</h2>
+    <div class="map-container">
+        <div class="map-placeholder">
+            <i class="fas fa-map-marker-alt map-marker"></i>
+            <span>Map loading...</span>
+        </div>
+    </div>
+    <p class="location-description">The apartment is located in <%= apartment.location %>. It's a great area with plenty of restaurants, cafes, and attractions nearby.</p>
+</div>
+
+<style>
+    .apartment-details-page {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 1.5rem;
+        margin-top: 80px;
+    }
+    
+    .breadcrumb {
+        margin-bottom: 1.5rem;
+    }
+    
+    .back-link {
+        color: #222;
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    
+    .apartment-header {
+        margin-bottom: 1.5rem;
+    }
+    
+    .apartment-header h1 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 0.8rem;
+    }
+    
+    .apartment-subheader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .rating-location {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.95rem;
+    }
+    
+    .rating i {
+        color: #FF385C;
+    }
+    
+    .review-count, .location-dot {
+        color: #717171;
+    }
+    
+    .location {
+        text-decoration: underline;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .action-btn {
+        background: transparent;
+        border: none;
+        padding: 0.5rem;
+        font-size: 0.95rem;
+        color: #222;
+        text-decoration: underline;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    
+    .apartment-gallery {
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .single-image {
+        width: 100%;
+        height: 500px;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+    
+    .single-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-gap: 0.5rem;
+        height: 500px;
+    }
+    
+    .main-image {
+        grid-row: span 2;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 12px 0 0 12px;
+    }
+    
+    .main-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .gallery-small {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 0.5rem;
+    }
+    
+    .small-image {
+        overflow: hidden;
+    }
+    
+    .small-image:nth-child(2) {
+        border-radius: 0 12px 0 0;
+    }
+    
+    .small-image:nth-child(4) {
+        border-radius: 0 0 12px 0;
+    }
+    
+    .small-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .show-all-photos {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .apartment-info-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 5rem;
+        margin-bottom: 3rem;
+        align-items: start;
+    }
+    
+    .host-section {
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #EBEBEB;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .host-section h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #222;
+    }
+    
+    .apartment-specs {
+        display: flex;
+        gap: 0.5rem;
+        color: #717171;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .host-profile {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+    
+    .host-image {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .highlights {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #EBEBEB;
+        margin-bottom: 1.5rem;
+    }
+    
+    .highlight-item {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .highlight-icon {
+        width: 24px;
+        color: #222;
+        font-size: 1.2rem;
+    }
+    
+    .highlight-content h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        color: #222;
+    }
+    
+    .highlight-content p {
+        color: #717171;
+        font-size: 0.95rem;
+    }
+    
+    .apartment-description {
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #EBEBEB;
+        margin-bottom: 1.5rem;
+    }
+    
+    .apartment-description h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #222;
+    }
+    
+    .apartment-description p {
+        color: #222;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+    
+    .show-more-btn {
+        background: transparent;
+        border: none;
+        text-decoration: underline;
+        font-weight: 600;
+        color: #222;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .amenities-section h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: #222;
+    }
+    
+    .amenities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .amenity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1rem;
+        color: #222;
+    }
+    
+    .show-all-amenities {
+        border: 1px solid #222;
+        background: transparent;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+    
+    .booking-card {
+        border: 1px solid #EBEBEB;
+        border-radius: 12px;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        padding: 1.5rem;
+        position: sticky;
+        top: 100px;
+    }
+    
+    .booking-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .price-info {
+        font-size: 1.1rem;
+    }
+    
+    .price {
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+    
+    .rating-info {
+        font-size: 0.9rem;
+    }
+    
+    .rating-info i {
+        color: #FF385C;
+    }
+    
+    .review-count-small {
+        color: #717171;
+    }
+    
+    .booking-form {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .date-picker {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid #B0B0B0;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    
+    .check-in, .check-out {
+        padding: 0.8rem;
+    }
+    
+    .check-in {
+        border-right: 1px solid #B0B0B0;
+    }
+    
+    .date-picker label, .guests-select label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        display: block;
+        margin-bottom: 0.3rem;
+    }
+    
+    .date-picker input, .guests-select select {
+        width: 100%;
+        border: none;
+        font-size: 0.9rem;
+        outline: none;
+        background: transparent;
+    }
+    
+    .guests-select {
+        border: 1px solid #B0B0B0;
+        border-radius: 8px;
+        padding: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .reserve-btn {
+        background-color: #FF385C;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 1rem;
+    }
+    
+    .no-charge-text {
+        text-align: center;
+        font-size: 0.9rem;
+        color: #717171;
+        margin-bottom: 1.5rem;
+    }
+    
+    .price-breakdown {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #EBEBEB;
+    }
+    
+    .price-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95rem;
+    }
+    
+    .price-item.total {
+        font-weight: 600;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #EBEBEB;
+    }
+    
+    .location-section {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+        border-top: 1px solid #EBEBEB;
+    }
+    
+    .location-section h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: #222;
+    }
+    
+    .map-container {
+        height: 400px;
+        background-color: #f8f8f8;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .map-placeholder {
+        text-align: center;
+        color: #717171;
+    }
+    
+    .map-marker {
+        font-size: 2rem;
+        color: #FF385C;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .location-description {
+        color: #222;
+        line-height: 1.5;
+    }
+    
+    @media (max-width: 768px) {
+        .apartment-gallery {
+            height: auto;
+        }
+        
+        .gallery-grid {
+            grid-template-columns: 1fr;
+            height: auto;
+        }
+        
+        .main-image {
+            height: 300px;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .gallery-small {
+            display: none;
+        }
+        
+        .apartment-info-container {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .booking-card {
+            position: static;
+        }
+    }
+</style>
+
+<!-- Define variables to be used in scripts -->
+<script>
+    // For demo purposes - these would be connected to real functionality in a production app
+    document.querySelectorAll('.show-all-photos, .show-more-btn, .show-all-amenities').forEach(button => {
+        button.addEventListener('click', () => {
+            alert('This button would reveal more content in a complete implementation.');
+        });
+    });
+    
+    // Get apartment data from data attributes
+    const bookingCard = document.querySelector('.booking-card');
+    const apartmentPrice = parseInt(bookingCard.dataset.apartmentPrice, 10);
+    const apartmentTitle = bookingCard.dataset.apartmentTitle;
+    
+    // Date picker functionality (placeholder)
+    const dateInputs = [document.getElementById('bookingCheckIn'), document.getElementById('bookingCheckOut')];
+    let startDate = null;
+    let endDate = null;
+    
+    dateInputs.forEach((input, index) => {
+        input.addEventListener('focus', () => {
+            // In production, this would be replaced with a real date picker
+            const today = new Date();
+            
+            if (index === 0) { // Check-in
+                const dateStr = prompt('Enter check-in date (MM/DD/YYYY):', formatDate(today));
+                if (dateStr) {
+                    startDate = new Date(dateStr);
+                    input.value = formatDate(startDate);
+                    
+                    // If we already have an end date, calculate nights
+                    if (endDate) {
+                        calculatePrices();
+                    }
+                }
+            } else { // Check-out
+                if (!startDate) {
+                    alert('Please select a check-in date first');
+                    return;
+                }
+                
+                const tomorrow = new Date(startDate);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                
+                const dateStr = prompt('Enter check-out date (MM/DD/YYYY):', formatDate(tomorrow));
+                if (dateStr) {
+                    endDate = new Date(dateStr);
+                    
+                    // Validate end date is after start date
+                    if (endDate <= startDate) {
+                        alert('Check-out date must be after check-in date');
+                        endDate = null;
+                        return;
+                    }
+                    
+                    input.value = formatDate(endDate);
+                    calculatePrices();
+                }
+            }
+        });
+    });
+    
+    function formatDate(date) {
+        return date ? (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() : '';
+    }
+    
+    function calculatePrices() {
+        if (!startDate || !endDate) return;
+        
+        // Calculate number of nights
+        const nights = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
+        
+        if (nights < 1) {
+            alert('Please select at least 1 night');
+            return;
+        }
+        
+        const pricePerNight = apartmentPrice;
+        const nightsTotal = pricePerNight * nights;
+        const serviceFee = Math.round(nightsTotal * 0.15);
+        const total = nightsTotal + 75 + serviceFee;
+        
+        // Update display
+        document.getElementById('nightCount').textContent = nights;
+        document.getElementById('totalNightPrice').textContent = '$' + nightsTotal;
+        document.getElementById('serviceFee').textContent = '$' + serviceFee;
+        document.getElementById('totalPrice').textContent = '$' + total;
+    }
+    
+    // Reserve button
+    document.getElementById('reserveBtn').addEventListener('click', () => {
+        if (!startDate || !endDate) {
+            alert('Please select check-in and check-out dates');
+            return;
+        }
+        
+        const guestCount = document.getElementById('guestCount').value;
+        const nights = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
+        const total = document.getElementById('totalPrice').textContent;
+        
+        // Check if user is logged in
+        const token = localStorage.getItem('token');
+        if (!token) {
+            if (confirm('You need to be logged in to make a reservation. Go to login page?')) {
+                window.location.href = '/login';
+            }
+            return;
+        }
+        
+        // In a real app, this would send the booking data to the server
+        const bookingMessage = 'Booking details:';
+        const apartmentDetail = 'Apartment: ' + apartmentTitle;
+        const datesDetail = 'Dates: ' + formatDate(startDate) + ' to ' + formatDate(endDate);
+        const guestsDetail = 'Guests: ' + guestCount;
+        const totalDetail = 'Total: ' + total;
+        const noteDetail = 'This would create a booking in a production application.';
+        alert(bookingMessage + '\n' + apartmentDetail + '\n' + datesDetail + '\n' + guestsDetail + '\n' + totalDetail + '\n\n' + noteDetail);
+    });
+    
+    // Share and save buttons
+    document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const action = e.currentTarget.textContent.trim().includes('Share') ? 'Share' : 'Save';
+            alert(action + ' functionality would be implemented in a production application.');
+            
+            if (action === 'Save') {
+                const icon = btn.querySelector('i');
+                icon.classList.toggle('far');
+                icon.classList.toggle('fas');
+                if (icon.classList.contains('fas')) {
+                    icon.style.color = '#FF385C';
+                } else {
+                    icon.style.color = 'inherit';
+                }
+            }
+        });
+    });
+</script> 

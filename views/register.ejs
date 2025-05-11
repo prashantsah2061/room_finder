@@ -1,0 +1,63 @@
+<%- contentFor('content') %>
+
+<div class="login-container">
+    <h2>Create Account</h2>
+    <div class="auth-error" id="authError">Registration failed. Please try again.</div>
+    <form class="login-form" id="registerForm">
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required placeholder="Enter your full name">
+        </div>
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Create a password">
+        </div>
+        <button type="submit" class="login-btn">Sign Up</button>
+    </form>
+    <p class="login-link">Already have an account? <a href="/login">Sign in</a></p>
+</div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const authError = document.getElementById('authError');
+    authError.style.display = 'none';
+    
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+    };
+
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Store the token
+            localStorage.setItem('token', data.token);
+            // Redirect to home page
+            window.location.href = '/';
+        } else {
+            authError.style.display = 'block';
+            authError.textContent = data.message || 'Registration failed. Please try different credentials.';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        authError.style.display = 'block';
+        authError.textContent = 'An error occurred during registration. Please try again.';
+    }
+});
+</script> 
